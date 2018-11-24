@@ -2,3 +2,6 @@
 *.pyc
 __pycache__/
 radio_storage.egg-info/
+dist/
+build/
+g
