@@ -2,6 +2,7 @@ import psycopg2 as driver
 
 from storage.exceptions import PostgresConnectionError
 
+
 class PostgresBaseDriver:
     """General-purpose class for PostreSQL communication.
 
@@ -58,7 +59,7 @@ class PostgresBaseDriver:
 
         return results
 
-    def insert_upload_delete(self, query, args):
+    def insert_upload_delete(self, query, *args):
         with self._conn.cursor() as cursor:
             cursor.execute(query, args)
             cursor.close()
