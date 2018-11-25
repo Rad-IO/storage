@@ -5,7 +5,7 @@ from storage.drivers import ResultsDriver
 from storage.drivers import RequestsDbDriver
 from storage.drivers import responses
 
-class StorageHandler
+class StorageHandler:
     def __init__(self, config):
         with open(config) as stream:
             cnf_data = json.load(stream)
