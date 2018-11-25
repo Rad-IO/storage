@@ -20,7 +20,8 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='Rad-I/O storage',
-    packages=['storage', 'storage.drivers'],
+    packages=['storage', 'storage.drivers', 'storage.handler_user',
+              'storage.handler_ml'],
     install_requires=[
         'numpy', 'psycopg2', 'tensorflow', 'passlib',
     ],
