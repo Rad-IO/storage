@@ -23,8 +23,8 @@ class UsersDBDriver(PostgresBaseDriver):
     def _get_list_from_requests(self, requests):
         return [
             {
-                'patient': r[0],
-                'comment': r[1],
+                'name': r[0],
+                'cnp': r[1],
             } for r in requests
         ]
 
