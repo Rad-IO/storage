@@ -5,3 +5,4 @@ class ErrorMessages:
         INVALID_ROLE = 'Invalid role: "{}".'
         USER_IN_DATABASE = 'User with email "{}" is already in database.'
         NO_ACCESS = 'User with role "{}" does not have access to this.'
+        INVALID_INNER_ID = 'No user found for inner id {}.'

@@ -13,11 +13,37 @@ class UserDb:
                              '  INNER JOIN users AS d '
                              '      ON r.did=d.id '
                              'WHERE r.status="DONE" AND d.inner_id=%s')
-        ROLE_ID = ('SELECT roles.id '
-                   'FROM roles '
-                   'WHERE roles.name=%s')
+        DB_ID = ('SELECT users.id '
+                 'FROM users '
+                 'WHERE users.inner_id=%s')
 
     class Insert:
         NEW_USER = ('INSERT '
                     'INTO users(email,password,role,inner_id,name) '
                     '   VALUES(%s,%s,%d,%s,%s)')
+
+
+class Roles:
+    class Select:
+        ROLE_ID = ('SELECT roles.id '
+                   'FROM roles '
+                   'WHERE roles.name=%s')
+
+
+class RequestDb:
+    class Insert:
+        NEW_REQUEST = ('INSERT '
+                       'INTO requests(did,sts,pid,comment) '
+                       '    VALUES(%d,%s,%d,%s)')
+
+    class Select:
+        LATEST_REQUEST = ('SELECT requests.id '
+                          'FROM requests '
+                          'ORDER BY requests.id DESC LIMIT 1')
+
+    class Update:
+        UPLOADED_PHOTO = ('UPDATE requests '
+                          'SET rid=%d,'
+                          '    photo=%s,'
+                          '    status=%s,'
+                          'WHERE requests.id=%d')

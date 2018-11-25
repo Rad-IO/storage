@@ -1,7 +1,11 @@
+import base64
+
 from passlib.hash import sha256_crypt
 
 from storage.drivers.sql_base import PostgresBaseDriver
 from storage.drivers.queries import UserDb as Queries
+from storage.drivers.queries import Roles as QueriesRoles
+from storage.drivers.queries import RequestDb as QueriesRequests
 from storage.drivers import responses
 import storage.drivers.constants as const
 
@@ -26,7 +30,9 @@ class UsersDBDriver(PostgresBaseDriver):
         return sha256_crypt.hash(password)
 
     def _construct_user_inner_id(self, email, name):
-        return abs(hash('{} - {}'.format(email, name))) % (10 ** 8)
+        return base64.b16encode(
+            str(abs(hash('{} - {}'.format(email, name)))).encode()
+        ).decode()
 
     def _check_role(self, inner_id, expected_role):
         r = self.get_role(inner_id)
@@ -39,6 +45,9 @@ class UsersDBDriver(PostgresBaseDriver):
             )
 
         return True
+
+    def _get_db_id(self, inner_id):
+        return self.select(Queries.Select.DB_ID, inner_id)
 
     def login(self, email, password):
         user = self._get_user_by_username(email)
@@ -79,7 +88,7 @@ class UsersDBDriver(PostgresBaseDriver):
         )
 
     def add_user(self, name, email, password, role):
-        role = self.select(Queries.Select.ROLE_ID, role)
+        role = self.select(QueriesRoles.Select.ROLE_ID, role)
 
         if len(role) == 0 or role is None:
             return responses.FailResponse(
@@ -107,8 +116,40 @@ class UsersDBDriver(PostgresBaseDriver):
         if isinstance(r, responses.FailResponse):
             return r
 
-        # TODO: FINISH THIS
+        db_id = self._get_db_id(inner_id)
 
-    def upload_photo(self, inner_id, req_id, photo):
-        # TODO: FINISH THIS
-        pass
+        if db_id is None or len(db_id) == 0:
+            return responses.FailResponse(
+                const.ErrorMessages.Users.INVALID_INNER_ID.format(inner_id)
+            )
+
+        self.insert_upload_delete(
+            QueriesRequests.Insert.NEW_REQUEST,
+            db_id[0][0],
+            'WAITING',
+            patient_id,
+            comment,
+        )
+
+        rid = self.select(QueriesRequests.Select.LATEST_REQUEST)[0][0]
+
+        return responses.SuccessResponse(rid=rid)
+
+    def upload_photo(self, inner_id, req_id, photo_data, photo_driver):
+        r = self._check_role(inner_id, 'radiolog')
+        if isinstance(r, responses.FailResponse):
+            return r
+
+        db_id = self._get_db_id(inner_id)
+
+        if db_id is None or len(db_id) == 0:
+            return responses.FailResponse(
+                const.ErrorMessages.Users.INVALID_INNER_ID.format(inner_id)
+            )
+
+        photo_id = photo_driver.save_new_image(photo_data)
+
+        self.insert_upload_delete(
+            QueriesRequests.Update.UPLOADED_PHOTO,
+            db_id, photo_id, 'UPLOADED', req_id,
+        )

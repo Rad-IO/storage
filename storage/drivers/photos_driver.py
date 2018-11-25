@@ -62,7 +62,9 @@ class PhotosStorageDriver:
             [str(random.choice(_DIGITS)) for _ in range(5)]
         )
 
-        return '{}_{}'.format(time, random_sequence)
+        return base64.b64encode(
+            '{}_{}'.format(time, random_sequence).encode()
+        ).decode()
 
     def get_image_by_id(self, img_id, use_tf=False, format=_DEFAULT_IMG_FORMAT):
         """Get image data by it's id.
@@ -88,13 +90,13 @@ class PhotosStorageDriver:
         with self._IMAGE_READERS[use_tf](image_path, 'rb') as stream:
             return stream.read()
 
-    def save_new_image(self, b64data):
+    def save_new_image(self, data):
         """Save a new image to disc.
 
         Parameters
         ----------
-        b64data: str
-            Base64-encoded image.
+        data: bytes
+            Image data.
 
         Returns
         -------
@@ -106,9 +108,7 @@ class PhotosStorageDriver:
         path = self._get_image_path(_DEFAULT_IMG_FORMAT, new_id)
         utils.create_directories_for_path(path)
 
-        raw_data = base64.b64decode(b64data)
-
         with open(path, 'wb') as stream:
-            stream.write(raw_data)
+            stream.write(data)
 
         return new_id
