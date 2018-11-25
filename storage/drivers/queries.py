@@ -40,6 +40,18 @@ class RequestDb:
         LATEST_REQUEST = ('SELECT requests.id '
                           'FROM requests '
                           'ORDER BY requests.id DESC LIMIT 1')
+        REQUESTS_WITH_PHOTO = ('SELECT requests.id, requests.photo '
+                               'FROM requests '
+                               "WHERE requests.status='UPLOADED'")
+        FINISHED_REQUESTS_FOR_DOCTOR = (
+            'SELECT requests.id, patients.name, patients.cnp '
+            'FROM requests '
+            'INNER JOIN patients'
+            '   ON requests.pid=patients.id '
+            'INNER JOIN users '
+            '   ON requests.id=users.id'
+            "WHERE requests.status='DONE' AND users.inner_id=%s"
+        )
 
     class Update:
         UPLOADED_PHOTO = ('UPDATE requests '
@@ -47,3 +59,6 @@ class RequestDb:
                           '    photo=%s,'
                           '    status=%s,'
                           'WHERE requests.id=%d')
+        UPLOADED_RESULT = ('UPDATE requests '
+                           "SET status='DONE' "
+                           'WHERE requests.id=%d')

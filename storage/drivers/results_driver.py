@@ -19,5 +19,4 @@ class ResultsDriver:
         path = self._get_path_for_result_file(rid)
 
         with open(path) as stream:
-            return json.load(path)
-
+            return json.load(stream)
