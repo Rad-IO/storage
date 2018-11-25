@@ -1,0 +1,11 @@
+{
+  "postgres":{
+    "host": "127.0.0.1",
+    "port": 5432,
+    "dbName": "radio",
+    "user": "postgres",
+    "password": "admin"
+  },
+  "results_path": "storage/results/",
+  "photos_path": "storage/photos/"
+}

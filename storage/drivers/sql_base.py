@@ -22,13 +22,14 @@ class PostgresBaseDriver:
         Password used at login.
 
     """
-    def __enter__(self, host, port, dbName, user, password):
+    def __init__(self, host, port, dbName, user, password):
         self.host = host
         self.port = port
         self.dbName = dbName
-        self.user=user
+        self.user = user
         self.password = password
 
+    def __enter__(self):
         self._setup_connection()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

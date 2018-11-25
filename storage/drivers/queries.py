@@ -6,7 +6,7 @@ class UserDb:
         USER_ROLE = ('SELECT roles.role FROM users '
                      '  INNER JOIN roles on users.rid=roles.id '
                      ' WHERE users.inner_id=%s')
-        FINISHED_REQUESTS = ('SELECT p.name, r.comment '
+        FINISHED_REQUESTS = ('SELECT p.name, p.cnp, r.comment '
                              'FROM requests AS r '
                              '  INNER JOIN patients AS p '
                              '      ON r.pid=p.id '
@@ -43,15 +43,13 @@ class RequestDb:
         REQUESTS_WITH_PHOTO = ('SELECT requests.id, requests.photo '
                                'FROM requests '
                                "WHERE requests.status='UPLOADED'")
-        FINISHED_REQUESTS_FOR_DOCTOR = (
-            'SELECT requests.id, patients.name, patients.cnp '
-            'FROM requests '
-            'INNER JOIN patients'
-            '   ON requests.pid=patients.id '
-            'INNER JOIN users '
-            '   ON requests.id=users.id'
-            "WHERE requests.status='DONE' AND users.inner_id=%s"
-        )
+        REQUEST_BY_ID = ('SELECT p.name, p.cnp, u.name '
+                         'FROM requests AS r '
+                         'INNER JOIN users AS u '
+                         '  ON r.rid=u.id '
+                         'INNER JOIN patients AS p '
+                         '  ON r.pid=p.id '
+                         'WHERE r.id=%d')
 
     class Update:
         UPLOADED_PHOTO = ('UPDATE requests '

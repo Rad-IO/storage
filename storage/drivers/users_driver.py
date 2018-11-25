@@ -2,15 +2,17 @@ import base64
 
 from passlib.hash import sha256_crypt
 
-from storage.drivers.sql_base import PostgresBaseDriver
-from storage.drivers.queries import UserDb as Queries
-from storage.drivers.queries import Roles as QueriesRoles
-from storage.drivers.queries import RequestDb as QueriesRequests
-from storage.drivers import responses
-import storage.drivers.constants as const
+from .sql_base import PostgresBaseDriver
+from .queries import UserDb as Queries
+from .queries import Roles as QueriesRoles
+from .queries import RequestDb as QueriesRequests
+from . import responses
+from . import constants as const
 
 
 class UsersDBDriver(PostgresBaseDriver):
+    def __init__(self, **kwargs):
+        super(UsersDBDriver, self).__init__(**kwargs)
 
     def _get_user_by_username(self, email):
         return self.select(Queries.Select.USER_BY_EMAIL, email)
@@ -152,4 +154,19 @@ class UsersDBDriver(PostgresBaseDriver):
         self.insert_upload_delete(
             QueriesRequests.Update.UPLOADED_PHOTO,
             db_id, photo_id, 'UPLOADED', req_id,
+        )
+
+    def get_finished_request(self, inner_id, rid, results_driver):
+        data = self.select(QueriesRequests.Select.REQUEST_BY_ID, rid)
+        if data is None or len(data) != 1:
+            return responses.FailResponse(
+                const.ErrorMessages.Users.INVALID_INNER_ID.format(inner_id)
+            )
+        results = results_driver.get_results(rid)
+
+        return responses.SuccessResponse(
+            results=results,
+            patient_name=data[0][0],
+            patient_cnp=data[0][1],
+            radiologist=data[0][2],
         )

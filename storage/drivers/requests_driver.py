@@ -1,14 +1,16 @@
-from storage.drivers.queries import RequestDb as Queries
-from storage.drivers.sql_base import PostgresBaseDriver
-import storage.drivers.responses as responses
+from .queries import RequestDb as Queries
+from .sql_base import PostgresBaseDriver
+from .responses import SuccessResponse
 
 
 class RequestsDbDriver(PostgresBaseDriver):
+    def __init__(self, **kwargs):
+        super(PostgresBaseDriver, self).__init__(**kwargs)
 
     def get_requests_with_photo(self):
         results = self.select(Queries.Select.REQUESTS_WITH_PHOTO)
 
-        return responses.SuccessResponse(
+        return SuccessResponse(
             requests=[{'id': r[0], 'photo': r[1]} for r in results]
         )
 
